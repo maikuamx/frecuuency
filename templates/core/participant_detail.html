@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ participant.name }} - Frecuuency{% endblock %}
+
+{% block content %}
+<section class="participant-detail" style="padding-top: 120px;">
+    <div class="container">
+        <!-- Participant Header -->
+        <div class="participant-header">
+            <div class="participant-photo-large">
+                {% if participant.photo %}
+                <img src="{{ participant.photo.url }}" alt="{{ participant.name }}">
+                {% else %}
+                <div class="participant-placeholder-large">
+                    <i class="fas fa-user"></i>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="participant-info">
+                <h1>{{ participant.name }}</h1>
+                {% if participant.bio %}
+                <p class="participant-bio">{{ participant.bio }}</p>
+                {% endif %}
+                
+                <!-- Social Links -->
+                {% if participant.social_links %}
+                <div class="social-links-large">
+                    {% for name, url, icon in participant.social_links %}
+                    <a href="{{ url }}" target="_blank" class="social-link-large" title="{{ name }}">
+                        <i class="fab fa-{{ icon }}"></i>
+                        <span>{{ name }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- Stats -->
+                <div class="participant-stats">
+                    <div class="stat">
+                        <span class="stat-number">{{ stats.total_sets }}</span>
+                        <span class="stat-label">Total Sets</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">{{ stats.collaborations }}</span>
+                        <span class="stat-label">Colaboraciones</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">{{ stats.audio_sets }}</span>
+                        <span class="stat-label">Audio Sets</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">{{ stats.video_sets }}</span>
+                        <span class="stat-label">Video Sets</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Participant Sets -->
+        {% if sets %}
+        <div class="participant-sets floating">
+            <h3><i class="fas fa-compact-disc"></i> Sets de {{ participant.name }}</h3>
+            <div class="sets-grid">
+                {% for set in sets %}
+                <div class="set-card card-enhanced">
+                    <a href="{% url 'set_detail' set.pk %}">
+                        <div class="card-thumbnail">
+                            {% if set.thumbnail %}
+                            <img src="{{ set.thumbnail.url }}" alt="{{ set.title }}">
+                            {% else %}
+                            <div class="placeholder-thumbnail">
+                                <i class="fas fa-{% if set.set_type == 'video' %}video{% else %}music{% endif %}"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="card-overlay">
+                                <div class="play-button">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                                <div class="set-type-badge">
+                                    <i class="fas fa-{% if set.set_type == 'video' %}video{% else %}music{% endif %}"></i>
+                                    {{ set.get_set_type_display }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-content">
+                            <h4 class="card-title">{{ set.title }}</h4>
+                            <p class="card-participants">{{ set.participants_list }}</p>
+                            <div class="card-meta">
+                                <span class="publish-date">{{ set.published_date|date:"d M Y" }}</span>
+                                {% if set.is_collaboration %}
+                                <span class="collaboration-badge">Colaboración</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="music-bars">
+                <div class="music-bar"></div>
+                <div class="music-bar"></div>
+                <div class="music-bar"></div>
+                <div class="music-bar"></div>
+                <div class="music-bar"></div>
+            </div>
+            <h3>Sin sets</h3>
+            <p>{{ participant.name }} aún no tiene sets publicados.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

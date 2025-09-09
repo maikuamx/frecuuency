@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ set.title }} - Frecuuency{% endblock %}
+
+{% block content %}
+<section class="set-detail" style="padding-top: 120px;">
+    <div class="container">
+        <!-- Set Header -->
+        <div class="set-header">
+            <div class="set-info">
+                <h1 class="set-title">{{ set.title }}</h1>
+                <div class="set-meta">
+                    <span class="participants">
+                        <i class="fas fa-user"></i> {{ set.participants_list }}
+                    </span>
+                    <span class="date">
+                        <i class="fas fa-calendar"></i> {{ set.published_date|date:"d M Y" }}
+                    </span>
+                    <span class="type">
+                        <i class="fas fa-{% if set.set_type == 'video' %}video{% else %}music{% endif %}"></i>
+                        {{ set.get_set_type_display }}
+                    </span>
+                    {% if set.is_collaboration %}
+                    <span class="collaboration-badge">Colaboración</span>
+                    {% endif %}
+                </div>
+                <p class="set-description">{{ set.description }}</p>
+            </div>
+        </div>
+
+        <!-- Media Player -->
+        <div class="media-player">
+            {% if set.set_type == 'audio' %}
+                {% if set.audio_file %}
+                <audio controls class="audio-player">
+                    <source src="{{ set.audio_file.url }}" type="audio/mpeg">
+                    Tu navegador no soporta el reproductor de audio.
+                </audio>
+                {% endif %}
+            {% elif set.set_type == 'video' %}
+                {% if set.embed_url %}
+                <div class="video-embed">
+                    <iframe src="{{ set.embed_url }}" frameborder="0" allowfullscreen></iframe>
+                </div>
+                {% elif set.video_file %}
+                <video controls class="video-player">
+                    <source src="{{ set.video_file.url }}" type="video/mp4">
+                    Tu navegador no soporta el reproductor de video.
+                </video>
+                {% endif %}
+            {% endif %}
+        </div>
+
+        <div class="set-content">
+            <!-- Tracklist -->
+            {% if tracks %}
+            <div class="tracklist-section floating">
+                <h3><i class="fas fa-list"></i> Tracklist</h3>
+                <div class="tracklist">
+                    {% for track in tracks %}
+                    <div class="track-item">
+                        <span class="track-number">{{ track.order|stringformat:"02d" }}</span>
+                        <div class="track-info">
+                            <span class="track-artist">{{ track.artist }}</span>
+                            <span class="track-title">{{ track.title }}</span>
+                            {% if track.label %}
+                            <span class="track-label">[{{ track.label }}]</span>
+                            {% endif %}
+                        </div>
+                        {% if track.duration %}
+                        <span class="track-duration">{{ track.duration }}</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Participants -->
+            <div class="participants-section floating-delayed">
+                <h3><i class="fas fa-users"></i> Participantes</h3>
+                <div class="participants-grid">
+                    {% for participant in set.participants.all %}
+                    <div class="participant-card card-enhanced">
+                        <a href="{% url 'participant_detail' participant.pk %}">
+                            {% if participant.photo %}
+                            <img src="{{ participant.photo.url }}" alt="{{ participant.name }}" class="participant-photo">
+                            {% else %}
+                            <div class="participant-placeholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            {% endif %}
+                            <h4>{{ participant.name }}</h4>
+                        </a>
+                        
+                        {% if participant.social_links %}
+                        <div class="social-links">
+                            {% for name, url, icon in participant.social_links %}
+                            <a href="{{ url }}" target="_blank" class="social-link" title="{{ name }}">
+                                <i class="fab fa-{{ icon }}"></i>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Sets -->
+        {% if related_sets %}
+        <div class="related-section floating">
+            <h3><i class="fas fa-compact-disc"></i> Sets Relacionados</h3>
+            <div class="related-grid">
+                {% for related in related_sets %}
+                <div class="set-card mini card-enhanced">
+                    <a href="{% url 'set_detail' related.pk %}">
+                        <div class="card-thumbnail">
+                            {% if related.thumbnail %}
+                            <img src="{{ related.thumbnail.url }}" alt="{{ related.title }}">
+                            {% else %}
+                            <div class="placeholder-thumbnail">
+                                <i class="fas fa-{% if related.set_type == 'video' %}video{% else %}music{% endif %}"></i>
+                            </div>
+                            {% endif %}
+                            <div class="card-overlay">
+                                <div class="play-button">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <h4>{{ related.title }}</h4>
+                            <p>{{ related.participants_list }}</p>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Custom audio/video player enhancements
+document.addEventListener('DOMContentLoaded', function() {
+    const audioPlayer = document.querySelector('.audio-player');
+    const videoPlayer = document.querySelector('.video-player');
+    
+    // Audio player customization
+    if (audioPlayer) {
+        audioPlayer.addEventListener('loadstart', function() {
+            console.log('Cargando audio...');
+        });
+        
+        audioPlayer.addEventListener('canplay', function() {
+            console.log('Audio listo para reproducir');
+        });
+    }
+    
+    // Video player customization
+    if (videoPlayer) {
+        videoPlayer.addEventListener('loadstart', function() {
+            console.log('Cargando video...');
+        });
+    }
+});
+</script>
+{% endblock %}

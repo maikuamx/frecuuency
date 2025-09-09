@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Frecuuency - DJ Platform{% endblock %}
+
+{% block content %}
+<!-- Hero Banner -->
+<section class="hero-banner">
+    <div class="hero-content">
+        <h1 class="hero-title">Frecuuency</h1>
+        <p class="hero-subtitle">Plataforma exclusiva de sets DJ y colaboraciones musicales</p>
+        
+        <div class="hero-cta">
+            <a href="#sets" class="btn btn-primary">
+                <i class="fas fa-play"></i>
+                <span>Explore Sets</span>
+            </a>
+            <a href="{% url 'participants_list' %}" class="btn btn-secondary">
+                <i class="fas fa-users"></i>
+                <span>View Artists</span>
+            </a>
+        </div>
+
+        <!-- Hero Stats -->
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <span class="hero-stat-number">{{ total_sets }}</span>
+                <span class="hero-stat-label">Epic Sets</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-number">{{ total_participants }}</span>
+                <span class="hero-stat-label">DJ Artists</span>
+            </div>
+            <div class="hero-stat">
+                <span class="hero-stat-number">24/7</span>
+                <span class="hero-stat-label">Music Flow</span>
+            </div>
+        </div>
+
+        {% if featured_sets %}
+        <div class="featured-sets">
+            <h3>
+                <i class="fas fa-star"></i>
+                Featured Sets
+                <div class="music-bars">
+                    <div class="music-bar"></div>
+                    <div class="music-bar"></div>
+                    <div class="music-bar"></div>
+                    <div class="music-bar"></div>
+                    <div class="music-bar"></div>
+                </div>
+            </h3>
+            <div class="featured-grid">
+                {% for set in featured_sets %}
+                <div class="featured-card floating{% if forloop.counter0|divisibleby:2 %}-delayed{% endif %}">
+                    <a href="{% url 'set_detail' set.pk %}">
+                        {% if set.thumbnail %}
+                        <img src="{{ set.thumbnail.url }}" alt="{{ set.title }}">
+                        {% else %}
+                        <div class="placeholder-thumbnail">
+                            <i class="fas fa-{% if set.set_type == 'video' %}video{% else %}music{% endif %}"></i>
+                        </div>
+                        {% endif %}
+                        <div class="featured-info">
+                            <h4>{{ set.title }}</h4>
+                            <p>{{ set.participants_list }}</p>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Filter Bar -->
+<section class="filter-bar" id="sets">
+    <div class="container">
+        <div class="filters">
+            <div class="filter-group">
+                <label>Type:</label>
+                <a href="{% url 'home' %}" class="filter-btn {% if not current_type %}active{% endif %}">
+                    <span><i class="fas fa-th"></i> All</span>
+                </a>
+                <a href="?type=audio" class="filter-btn {% if current_type == 'audio' %}active{% endif %}">
+                    <span><i class="fas fa-music"></i> Audio</span>
+                </a>
+                <a href="?type=video" class="filter-btn {% if current_type == 'video' %}active{% endif %}">
+                    <span><i class="fas fa-video"></i> Video</span>
+                </a>
+            </div>
+
+            <div class="filter-group">
+                <label>Category:</label>
+                <a href="{% url 'home' %}" class="filter-btn {% if not current_category %}active{% endif %}">
+                    <span><i class="fas fa-list"></i> All</span>
+                </a>
+                <a href="?category=featured" class="filter-btn {% if current_category == 'featured' %}active{% endif %}">
+                    <span><i class="fas fa-star"></i> Featured</span>
+                </a>
+                <a href="?category=collaborations" class="filter-btn {% if current_category == 'collaborations' %}active{% endif %}">
+                    <span><i class="fas fa-handshake"></i> Collabs</span>
+                </a>
+                <a href="?category=solo" class="filter-btn {% if current_category == 'solo' %}active{% endif %}">
+                    <span><i class="fas fa-user"></i> Solo</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="stats">
+            <span class="stat-item">
+                <i class="fas fa-music"></i> {{ total_sets }} Sets
+            </span>
+            <span class="stat-item">
+                <i class="fas fa-users"></i> {{ total_participants }} Artistas
+            </span>
+        </div>
+    </div>
+</section>
+
+<!-- Sets Grid -->
+<section class="sets-grid-section">
+    <div class="container">
+        {% if page_obj %}
+        <div class="sets-grid">
+            {% for set in page_obj %}
+            <div class="set-card card-enhanced" data-type="{{ set.set_type }}">
+                <a href="{% url 'set_detail' set.pk %}">
+                    <div class="card-thumbnail">
+                        {% if set.thumbnail %}
+                        <img src="{{ set.thumbnail.url }}" alt="{{ set.title }}">
+                        {% else %}
+                        <div class="placeholder-thumbnail">
+                            <i class="fas fa-{% if set.set_type == 'video' %}video{% else %}music{% endif %}"></i>
+                        </div>
+                        {% endif %}
+
+                        <div class="card-overlay">
+                            <div class="play-button">
+                                <i class="fas fa-play"></i>
+                            </div>
+                            <div class="set-type-badge">
+                                <i class="fas fa-{% if set.set_type == 'video' %}video{% else %}music{% endif %}"></i>
+                                {{ set.get_set_type_display }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-content">
+                        <h3 class="card-title">{{ set.title }}</h3>
+                        <p class="card-participants">{{ set.participants_list }}</p>
+                        <div class="card-meta">
+                            <span class="publish-date">{{ set.published_date|date:"d M Y" }}</span>
+                            {% if set.is_collaboration %}
+                            <span class="collaboration-badge">Collab</span>
+                            {% endif %}
+                            {% if set.is_featured %}
+                            <span class="featured-badge">Featured</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination-wrapper">
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="page-btn">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                {% endif %}
+
+                <span class="page-info">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}" class="page-btn">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-state floating">
+            <div class="empty-illustration">
+                <i class="fas fa-music"></i>
+            </div>
+            <h3>No Sets Available Yet</h3>
+            <p>The stage is set, but the music hasn't started. Be the first to drop some beats!</p>
+            <a href="/admin/" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                <span>Upload First Set</span>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

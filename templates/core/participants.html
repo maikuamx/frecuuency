@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Artistas - Frecuuency{% endblock %}
+
+{% block content %}
+<section class="participants-page" style="padding-top: 120px;">
+    <div class="container">
+        <!-- Header -->
+        <div class="page-header">
+            <h1>
+                <i class="fas fa-users"></i> 
+                DJ Artists
+                <div class="music-bars" style="display: inline-flex; margin-left: 20px;">
+                    <div class="music-bar"></div>
+                    <div class="music-bar"></div>
+                    <div class="music-bar"></div>
+                    <div class="music-bar"></div>
+                    <div class="music-bar"></div>
+                </div>
+            </h1>
+            <p>Discover all the talented DJs who bring the beats to Frecuuency</p>
+        </div>
+
+        <!-- Search -->
+        <div class="search-section">
+            <form method="GET" class="search-form-page">
+                <input type="text" name="search" placeholder="Search artists..." value="{{ search }}">
+                <button type="submit">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </form>
+        </div>
+
+        <!-- Participants Grid -->
+        {% if page_obj %}
+        <div class="participants-grid">
+            {% for participant in page_obj %}
+            <div class="participant-card card-enhanced floating{% if forloop.counter0|divisibleby:2 %}-delayed{% endif %}">
+                <a href="{% url 'participant_detail' participant.pk %}">
+                    <div class="participant-photo-container">
+                        {% if participant.photo %}
+                        <img src="{{ participant.photo.url }}" alt="{{ participant.name }}" class="participant-photo">
+                        {% else %}
+                        <div class="participant-placeholder">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        {% endif %}
+                        <div class="participant-overlay">
+                            <div class="sets-count">{{ participant.sets_count }} sets</div>
+                        </div>
+                    </div>
+
+                    <div class="participant-info">
+                        <h3>{{ participant.name }}</h3>
+                        {% if participant.bio %}
+                        <p class="participant-bio">{{ participant.bio|truncatewords:15 }}</p>
+                        {% endif %}
+                    </div>
+                </a>
+
+                {% if participant.social_links %}
+                <div class="social-links">
+                    {% for name, url, icon in participant.social_links %}
+                    <a href="{{ url }}" target="_blank" class="social-link" title="{{ name }}">
+                        <i class="fab fa-{{ icon }}"></i>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination-wrapper">
+            <div class="pagination">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}" class="page-btn">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+                {% endif %}
+
+                <span class="page-info">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}" class="page-btn">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="empty-state floating">
+            <div class="empty-illustration">
+                <i class="fas fa-user-music"></i>
+            </div>
+            <h3>No Artists Found</h3>
+            {% if search %}
+            <p>No results found for "{{ search }}"</p>
+            <a href="{% url 'participants_list' %}" class="btn btn-primary">
+                <i class="fas fa-users"></i>
+                <span>View All Artists</span>
+            </a>
+            {% else %}
+            <p>The lineup is still being assembled. Stay tuned for amazing artists!</p>
+            <a href="/admin/" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                <span>Add First Artist</span>
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

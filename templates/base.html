@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Frecuuency - DJ Platform{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Particle Background -->
+    <div class="particle-bg" id="particleBg"></div>
+
+    <nav class="navbar">
+        <div class="container">
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <a href="{% url 'home' %}" class="navbar-brand">
+                <div class="navbar-logo">
+                    <i class="fas fa-music"></i>
+                </div>
+                <h1>Frecuuency</h1>
+            </a>
+
+            <div class="navbar-menu" id="navbarMenu">
+                <a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                    <span><i class="fas fa-home"></i> Home</span>
+                </a>
+                <a href="{% url 'participants_list' %}" class="nav-link {% if request.resolver_match.url_name == 'participants_list' %}active{% endif %}">
+                    <span><i class="fas fa-users"></i> Artists</span>
+                </a>
+
+                <!-- Search form -->
+                <form class="search-form" method="GET" action="{% url 'search' %}">
+                    <input type="text" name="q" placeholder="Search sets, artists..." value="{{ request.GET.q }}">
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Frecuuency</h3>
+                    <p>Plataforma exclusiva de sets DJ y colaboraciones musicales.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Navigation</h4>
+                    <a href="{% url 'home' %}">Home</a>
+                    <a href="{% url 'participants_list' %}">Artists</a>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>© 2025 Frecuuency. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_scripts %}{% endblock %}
+    
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // Mobile menu toggle
+        const mobileToggle = document.getElementById('mobileMenuToggle');
+        const navbarMenu = document.getElementById('navbarMenu');
+        
+        if (mobileToggle && navbarMenu) {
+            mobileToggle.addEventListener('click', function() {
+                navbarMenu.classList.toggle('active');
+            });
+        }
+        
+        // Particle background
+        function createParticles() {
+            const particleBg = document.getElementById('particleBg');
+            if (!particleBg) return;
+            
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                particleBg.appendChild(particle);
+            }
+        }
+        
+        createParticles();
+    </script>
+</body>
+</html>

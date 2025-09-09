@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Búsqueda: {{ query }} - Frecuuency{% endblock %}
+
+{% block content %}
+<section class="search-page" style="padding-top: 120px;">
+    <div class="container">
+        <!-- Search Header -->
+        <div class="search-header">
+            <h1><i class="fas fa-search"></i> Resultados de búsqueda</h1>
+            {% if query %}
+            <p>Resultados para: <strong>"{{ query }}"</strong></p>
+            <p class="results-count">{{ total_results }} resultado{{ total_results|pluralize }}</p>
+            {% endif %}
+        </div>
+
+        <!-- Search Form -->
+        <div class="search-section">
+            <form method="GET" class="search-form-page">
+                <input type="text" name="q" placeholder="Buscar sets, artistas..." value="{{ query }}">
+                <button type="submit">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </form>
+        </div>
+
+        {% if query %}
+        <!-- Sets Results -->
+        {% if sets %}
+        <div class="search-results-section">
+            <h3><i class="fas fa-music"></i> Sets ({{ sets.count }})</h3>
+            <div class="sets-grid">
+                {% for set in sets %}
+                <div class="set-card card-enhanced">
+                    <a href="{% url 'set_detail' set.pk %}">
+                        <div class="card-thumbnail">
+                            {% if set.thumbnail %}
+                            <img src="{{ set.thumbnail.url }}" alt="{{ set.title }}">
+                            {% else %}
+                            <div class="placeholder-thumbnail">
+                                <i class="fas fa-{% if set.set_type == 'video' %}video{% else %}music{% endif %}"></i>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="card-overlay">
+                                <div class="play-button">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                                <div class="set-type-badge">
+                                    <i class="fas fa-{% if set.set_type == 'video' %}video{% else %}music{% endif %}"></i>
+                                    {{ set.get_set_type_display }}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-content">
+                            <h4 class="card-title">{{ set.title }}</h4>
+                            <p class="card-participants">{{ set.participants_list }}</p>
+                            <div class="card-meta">
+                                <span class="publish-date">{{ set.published_date|date:"d M Y" }}</span>
+                                {% if set.is_collaboration %}
+                                <span class="collaboration-badge">Colaboración</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Participants Results -->
+        {% if participants %}
+        <div class="search-results-section">
+            <h3><i class="fas fa-users"></i> Artistas ({{ participants.count }})</h3>
+            <div class="participants-grid">
+                {% for participant in participants %}
+                <div class="participant-card card-enhanced">
+                    <a href="{% url 'participant_detail' participant.pk %}">
+                        <div class="participant-photo-container">
+                            {% if participant.photo %}
+                            <img src="{{ participant.photo.url }}" alt="{{ participant.name }}" class="participant-photo">
+                            {% else %}
+                            <div class="participant-placeholder">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="participant-info">
+                            <h4>{{ participant.name }}</h4>
+                            {% if participant.bio %}
+                            <p class="participant-bio">{{ participant.bio|truncatewords:10 }}</p>
+                            {% endif %}
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if not sets and not participants %}
+        <div class="empty-state">
+            <div class="music-bars">
+                <div class="music-bar"></div>
+                <div class="music-bar"></div>
+                <div class="music-bar"></div>
+                <div class="music-bar"></div>
+                <div class="music-bar"></div>
+            </div>
+            <h3>Sin resultados</h3>
+            <p>No se encontraron resultados para "{{ query }}"</p>
+            <a href="{% url 'home' %}" class="btn btn-primary">
+                <i class="fas fa-home"></i>
+                <span>Volver al inicio</span>
+            </a>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
